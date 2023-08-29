@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/ordo-one/swift-collections",
-            from: "1.1-alpha.1"), // on release/1.1
+            from: "1.1.0-alpha.1"), // on release/1.1
         .package(
             url: "https://github.com/ordo-one/swift-foundation-icu",
             from: "0.0.2-alpha.1"),
