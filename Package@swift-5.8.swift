@@ -14,11 +14,11 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/apple/swift-collections",
-            revision: "d8003787efafa82f9805594bc51100be29ac6903"), // on release/1.1
+            url: "https://github.com/ordo-one/swift-collections",
+            from: "1.1.0-alpha.1"), // on release/1.1
         .package(
-            url: "https://github.com/apple/swift-foundation-icu",
-            revision: "0c1de7149a39a9ff82d4db66234dec587b30a3ad")
+            url: "https://github.com/ordo-one/swift-foundation-icu",
+            from: "0.0.2-alpha.1")
     ],
     targets: [
         // Foundation (umbrella)
