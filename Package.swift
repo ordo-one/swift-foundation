@@ -6,18 +6,22 @@ import CompilerPluginSupport
 
 // Availability Macros
 let availabilityMacros: [SwiftSetting] = [
-    "FoundationPreview 0.1:macOS 9999, iOS 9999, tvOS 9999, watchOS 9999",
-    "FoundationPreview 0.2:macOS 9999, iOS 9999, tvOS 9999, watchOS 9999",
-    "FoundationPreview 0.3:macOS 9999, iOS 9999, tvOS 9999, watchOS 9999",
-    "FoundationPreview 0.4:macOS 9999, iOS 9999, tvOS 9999, watchOS 9999",
+//    "FoundationPreview 0.1:macOS 9999, iOS 9999, tvOS 9999, watchOS 9999",
+//    "FoundationPreview 0.2:macOS 9999, iOS 9999, tvOS 9999, watchOS 9999",
+//    "FoundationPreview 0.3:macOS 9999, iOS 9999, tvOS 9999, watchOS 9999",
+//    "FoundationPreview 0.4:macOS 9999, iOS 9999, tvOS 9999, watchOS 9999",
 ].map { .enableExperimentalFeature("AvailabilityMacro=\($0)") }
+
+let evolutionMode: [SwiftSetting] = [
+    .unsafeFlags(["-enable-library-evolution", "-emit-module-interface"])
+]
 
 let package = Package(
     name: "FoundationPreview",
     platforms: [.macOS("13.3"), .iOS("16.4"), .tvOS("16.4"), .watchOS("9.4")],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
-        .library(name: "FoundationPreview", targets: ["FoundationPreview"]),
+        .library(name: "FoundationPreview", type: .dynamic, targets: ["FoundationPreview"]),
         .library(name: "FoundationEssentials", targets: ["FoundationEssentials"]),
         .library(name: "FoundationInternationalization", targets: ["FoundationInternationalization"]),
     ],
@@ -42,7 +46,9 @@ let package = Package(
                 "FoundationEssentials",
                 "FoundationInternationalization",
             ],
-            path: "Sources/Foundation"),
+            // swiftSettings: evolutionMode,
+            path: "Sources/Foundation"
+        ),
 
         // _CShims (Internal)
         .target(name: "_CShims",
@@ -53,7 +59,7 @@ let package = Package(
         .target(name: "TestSupport", dependencies: [
             "FoundationEssentials",
             "FoundationInternationalization",
-        ], swiftSettings: availabilityMacros),
+        ], swiftSettings: availabilityMacros + evolutionMode),
 
         // FoundationEssentials
         .target(
@@ -65,7 +71,7 @@ let package = Package(
           swiftSettings: [
             .enableExperimentalFeature("VariadicGenerics"),
             .enableExperimentalFeature("AccessLevelOnImport")
-          ] + availabilityMacros
+          ] + availabilityMacros + evolutionMode
         ),
         .testTarget(name: "FoundationEssentialsTests", dependencies: [
             "TestSupport",
@@ -82,9 +88,9 @@ let package = Package(
             ],
             swiftSettings: [
                 .enableExperimentalFeature("AccessLevelOnImport")
-            ] + availabilityMacros
+            ] + availabilityMacros + evolutionMode
         ),
-        
+
         // FoundationMacros
         .macro(
             name: "FoundationMacros",
@@ -119,6 +125,12 @@ package.targets.append(contentsOf: [
     ], swiftSettings: availabilityMacros),
 ])
 #endif
+
+if let index = package.targets.firstIndex(where: { $0.name == "FoundationPreview" }) {
+    package.targets[index].swiftSettings = evolutionMode
+} else {
+    fatalError("Target 'FoundationPreview' not found.")
+}
 
 #if !os(Windows)
 // Using macros at build-time is not yet supported on Windows
